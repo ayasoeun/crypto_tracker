@@ -6,6 +6,8 @@ function Router() {
         <BrowserRouter>
             <Switch>
                 <Route path="/:coinId">
+                    {/* : 뒤는 url의 param값으로, 뭐든 입력될 수 있음.
+                  사용자가 입력한 해당 값을 object인 { param: btc } 형태로 입력된다 */}
                     <Coin />
                 </Route>
                 <Route path="/">
