@@ -58,6 +58,9 @@ body {
 }
 a {
     text-decoration: none;
+    color: inherit;
+     // color:inherit으로 바꿔줘야 Link를 설정한 텍스트가 설정한 스타일을 따름
+     // <Link> 컴포넌트는 실제로 렌더링되면 <a> 태그처럼 동작하고, <a> 태그처럼 스타일이 적용된다. 
 }
 *{
     box-sizing: border-box;
