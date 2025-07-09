@@ -1,5 +1,6 @@
 import styled from "styled-components"; //styled는 아래처럼 '스타일 컴포넌트'를 만들 때 쓰임
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const Container = styled.div`
     padding: 0px 20px;
@@ -45,51 +46,59 @@ const Title = styled.h1`
             .accentColor}; //App이 theme에 접근할 수 있으면 App에 들어있는 하위요소들도 마찬가지임(import 필요x)
     font-size: 3rem;
 `;
-const coins = [
-    {
-        id: "btc-bitcoin",
-        name: "Bitcoin",
-        symbol: "BTC",
-        rank: 1,
-        is_new: false,
-        is_active: true,
-        type: "coin",
-    },
-    {
-        id: "eth-ethereum",
-        name: "Ethereum",
-        symbol: "ETH",
-        rank: 2,
-        is_new: false,
-        is_active: true,
-        type: "coin",
-    },
-    {
-        id: "hex-hex",
-        name: "HEX",
-        symbol: "HEX",
-        rank: 3,
-        is_new: false,
-        is_active: true,
-        type: "token",
-    },
-];
 
+const Loader = styled.span`
+    // loading text를 가운데에 띄우는 스타일 적용
+    text-align: center;
+`;
+
+interface CoinInterface {
+    // defining interface for coins data
+    id: string;
+    name: string;
+    symbol: string;
+    rank: number;
+    is_new: boolean;
+    is_active: boolean;
+    type: string;
+}
 function Coins() {
+    const [coins, setCoins] = useState<CoinInterface[]>([]); //객체들을 담은 배열일 때는 []를 뒤에 써주어야함. 초깃값으로 [] 할당하여 배열임을 알려줌
+    // coins에 아무값이 없어도 초깃값으로 빈 array가 렌더링되므로 에러가 나지 않는다.
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        //useEffect to occur side effect (this time it happend only once when it's mounted because of dependencies array '[]')
+        (async () => {
+            // async is a "keyword" saying IT IS asynchronous function ! (saying this: () => {} is asynchronous)
+            //'asynchronous func' always returns PROMISE.
+            const response = await fetch(
+                // await IS a "KEYWORD" and it WAITS until it gets the values(&can put the value in variables)
+                "https://api.coinpaprika.com/v1/coins"
+            );
+            const json = await response.json();
+            // console.log(json);
+            setCoins(json.slice(0, 100)); //Since the value has a large data, we decided to use only 100 datas
+            setLoading(false); //set loading state as false when we get promise(data) successfully
+        })(); //는 (함수)() 바로 실행 코드. 정의만 하는게 아닌 실행도 즉시 같이 됨.
+    }, []);
     return (
         <Container>
             <Header>
                 <Title>코인</Title>
             </Header>
-            <CoinsList>
-                {coins.map((coin) => (
-                    <Coin key={coin.id}>
-                        <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
-                    </Coin> //&rarr; 는 화살표 이모지.
-                    // CoinList>Coin 의 형태. `/${coin.id}`(백틱으로 감싼) 형태로 to에 값을 넣는다(동적 라우팅). {coin.name} 부분이 링크처럼 작동함
-                    // Coin이 동적 url 받을 수 있도록 라우터 설정이 전제되어서 이 방식이 가능한 것임
-                ))}
-            </CoinsList>
+            {loading ? ( // {loading? a : b}
+                <Loader>Loading...</Loader>
+            ) : (
+                <CoinsList>
+                    {coins.map((coin) => (
+                        <Coin key={coin.id}>
+                            <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
+                        </Coin> //&rarr; 는 화살표 이모지.
+                        // CoinList>Coin 의 형태. `/${coin.id}`(백틱으로 감싼) 형태로 to에 값을 넣는다(동적 라우팅). {coin.name} 부분이 링크처럼 작동함
+                        // Coin이 동적 url 받을 수 있도록 라우터 설정이 전제되어서 이 방식이 가능한 것임
+                    ))}
+                </CoinsList>
+            )}
         </Container>
     );
 } //styled components를 정의해주었으면 h1 태그가 아닌 스타일 컴포넌트 Title로 바꿔주기
