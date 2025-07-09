@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 const Container = styled.div`
     padding: 0px 20px;
+    max-width: 480px; // container 필수 작업! max-width와 margin auto 설정으로 보기 좋게
+    margin: 0 auto;
 `;
 
 const Header = styled.header`
