@@ -1,6 +1,57 @@
-import { useLocation, useParams } from "react-router-dom";
+import {
+    Link,
+    Switch,
+    Route,
+    useLocation,
+    useParams,
+    useRouteMatch,
+} from "react-router-dom";
 import { Container, Header, Title, Loader } from "./Coins";
 import { useEffect, useState } from "react";
+import styled from "styled-components";
+import Price from "./Price";
+import Chart from "./Chart";
+
+const Taps = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    margin: 25px 0;
+    gap: 10px;
+`;
+const Tap = styled.span<{ isActive: boolean }>`
+    // <{ isActive: boolean }> -> This is how you set props to styled components! 'isActive' is props and its type is 'boolean'
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 0.725rem;
+    font-weight: 400;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 7px 0px;
+    border-radius: 10px;
+    color: ${(props) =>
+        props.isActive ? props.theme.accentColor : props.theme.textColor};
+    // don't forget we should get props like this
+    a {
+        display: block;
+    }
+`;
+
+const Overview = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+`;
+const OverviewItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+`;
+
+const Description = styled.p`
+    margin: 20px 0px;
+`;
 
 interface RouteParam {
     coinId: string;
@@ -69,6 +120,8 @@ function Coin() {
     const { state } = useLocation<RouteState>();
     const [info, setInfo] = useState<InfoData>(); //이제 fetch로 받아온 infoData, priceData를 사용하기 위해 state로 정의해준다
     const [priceInfo, setPriceInfo] = useState<PriceData>(); //interface를 정의해주었으므로 {}는 필요없다
+    const priceMatch = useRouteMatch(`/${coinId}/price`); //true면 priceMatch는 object가 될거고 아니면 null 반환
+    const chartMatch = useRouteMatch(`/${coinId}/chart`); //useRouteMatch checks whether you are in the url
 
     useEffect(() => {
         (async () => {
@@ -85,18 +138,73 @@ function Coin() {
             setPriceInfo(priceData);
             setLoading(false);
         })();
-    }, []);
+    }, [coinId]); //If coinId value is changed it runs again
 
     return (
         <Container>
             <Header>
-                <Title>{state?.name || "loading..."}</Title>
-                {/* if the state exist, show me the name. if not, show me "loading..." */}
+                <Title>
+                    {state?.name
+                        ? state.name
+                        : loading
+                        ? "Loading..."
+                        : info?.name}
+                </Title>
+                {/* This will only be true when users click through the homepage  */}
+                {/* : is 'or'. This will if you can't get the state from url param then you get data from api */}
+                {/* loading ? "Loading..." : info?.name -> This block will be excuted when user is not coming from hompage */}
             </Header>
             {loading ? ( // {loading? a : b}
                 <Loader>Loading...</Loader>
             ) : (
-                <span>{info?.description}</span>
+                <>
+                    <Overview>
+                        <OverviewItem>
+                            <span>Rank:</span>
+                            <span>{info?.rank}</span>
+                        </OverviewItem>
+                        <OverviewItem>
+                            <span>Symbol:</span>
+                            <span>{info?.symbol}</span>
+                        </OverviewItem>
+                        <OverviewItem>
+                            <span>Open Source:</span>
+                            <span>{info?.open_source ? "Yes" : "No"}</span>
+                        </OverviewItem>
+                    </Overview>
+                    <Description>{info?.description}</Description>
+                    <Overview>
+                        <OverviewItem>
+                            <span>Total Suply:</span>
+                            <span>{priceInfo?.total_supply}</span>
+                        </OverviewItem>
+                        <OverviewItem>
+                            <span>Max Supply:</span>
+                            <span>{priceInfo?.max_supply}</span>
+                        </OverviewItem>
+                    </Overview>
+
+                    <Taps>
+                        <Tap isActive={priceMatch !== null}>
+                            {/* isActive is props that Tap has.. it's same as !(priceMatch == null) */}
+                            <Link to={`/${coinId}/price`}>Price</Link>
+                        </Tap>
+                        <Tap isActive={chartMatch !== null}>
+                            <Link to={`/${coinId}/chart`}>Chart</Link>
+                        </Tap>
+                    </Taps>
+
+                    <Switch>
+                        {/* 라우트 안에 또 다른 라우터를 렌더링하는 중 */}
+                        <Route path={`/${coinId}/price`}>
+                            {/* coinId에 실제 값이 있는 경우 사용자가 없는 값을 입력하면 에러가 나도록 정적 경로로 설정해야 한다. */}
+                            <Price />
+                        </Route>
+                        <Route path={`/${coinId}/chart`}>
+                            <Chart />
+                        </Route>
+                    </Switch>
+                </>
             )}
         </Container>
     );
