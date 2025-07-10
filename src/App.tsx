@@ -1,5 +1,6 @@
 import Router from "./Router";
 import styled, { createGlobalStyle } from "styled-components"; //전역 스타일 적용을 위한 createGlobalStyle import
+import { ReactQueryDevtools } from "react-query-devtools"; //to see react cache
 
 const GlobalStyle = createGlobalStyle` //이렇게 전역 스타일을 적용해줄 수 있다. 사용법은 일반 styled components와 동일하다. 이곳에 css 리셋 코드를 적는다.
     @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
@@ -72,6 +73,7 @@ function App() {
         <>
             <GlobalStyle />
             <Router />
+            {/* <ReactQueryDevtools initialIsOpen={true} /> */}
         </> //기존에 리액트에서 <div>로 컴포넌트들을 묶어주었는데, 이러면 쓸데없는 div가 늘어나기 때문에 fragment 태그를 사용한다.
     );
 }

@@ -11,6 +11,9 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Price from "./Price";
 import Chart from "./Chart";
+import { useQuery } from "react-query";
+import { fetchCoinInfo } from "../api";
+import { fetchCoinTickers } from "../api";
 
 const Taps = styled.div`
     display: grid;
@@ -115,31 +118,38 @@ interface PriceData {
 }
 
 function Coin() {
-    const [loading, setLoading] = useState(true);
     const { coinId } = useParams<RouteParam>(); //useParam variable that is typed
     const { state } = useLocation<RouteState>();
-    const [info, setInfo] = useState<InfoData>(); //이제 fetch로 받아온 infoData, priceData를 사용하기 위해 state로 정의해준다
-    const [priceInfo, setPriceInfo] = useState<PriceData>(); //interface를 정의해주었으므로 {}는 필요없다
+    // const [loading, setLoading] = useState(true);
+    // const [info, setInfo] = useState<InfoData>(); //이제 fetch로 받아온 infoData, priceData를 사용하기 위해 state로 정의해준다
+    // const [priceInfo, setPriceInfo] = useState<PriceData>(); //interface를 정의해주었으므로 {}는 필요없다
     const priceMatch = useRouteMatch(`/${coinId}/price`); //true면 priceMatch는 object가 될거고 아니면 null 반환
     const chartMatch = useRouteMatch(`/${coinId}/chart`); //useRouteMatch checks whether you are in the url
+    // react-router v6부터는 useRouteMatch가 사용되지 않고 useMatch로 대체된다.
+    const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+        ["info", coinId],
+        () => fetchCoinInfo(coinId)
+    ); // can't not have the same name so we're going to change their name by like this=> isLoading: infoLoading
+    const { isLoading: tickersLoading, data: tickersData } =
+        useQuery<PriceData>(["ticker", coinId], () => fetchCoinTickers(coinId));
 
-    useEffect(() => {
-        (async () => {
-            const infoData = await (
-                await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-            ).json(); // 이 방식은 await response.json()과 같다
-            console.log(infoData);
-            // infoData는 object type
-            const priceData = await (
-                await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-            ).json(); // ticker api, price info
-            console.log(priceData);
-            setInfo(infoData);
-            setPriceInfo(priceData);
-            setLoading(false);
-        })();
-    }, [coinId]); //If coinId value is changed it runs again
-
+    // useEffect(() => {
+    //     (async () => {
+    //         const infoData = await (
+    //             await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
+    //         ).json(); // 이 방식은 await response.json()과 같다
+    //         console.log(infoData);
+    //         // infoData는 object type
+    //         const priceData = await (
+    //             await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
+    //         ).json(); // ticker api, price info
+    //         console.log(priceData);
+    //         setInfo(infoData);
+    //         setPriceInfo(priceData);
+    //         setLoading(false);
+    //     })();
+    // }, [coinId]); //If coinId value is changed it runs again
+    const loading = infoLoading || tickersLoading;
     return (
         <Container>
             <Header>
@@ -148,7 +158,7 @@ function Coin() {
                         ? state.name
                         : loading
                         ? "Loading..."
-                        : info?.name}
+                        : infoData?.name}
                 </Title>
                 {/* This will only be true when users click through the homepage  */}
                 {/* : is 'or'. This will if you can't get the state from url param then you get data from api */}
@@ -161,26 +171,26 @@ function Coin() {
                     <Overview>
                         <OverviewItem>
                             <span>Rank:</span>
-                            <span>{info?.rank}</span>
+                            <span>{infoData?.rank}</span>
                         </OverviewItem>
                         <OverviewItem>
                             <span>Symbol:</span>
-                            <span>{info?.symbol}</span>
+                            <span>{infoData?.symbol}</span>
                         </OverviewItem>
                         <OverviewItem>
                             <span>Open Source:</span>
-                            <span>{info?.open_source ? "Yes" : "No"}</span>
+                            <span>{infoData?.open_source ? "Yes" : "No"}</span>
                         </OverviewItem>
                     </Overview>
-                    <Description>{info?.description}</Description>
+                    <Description>{infoData?.description}</Description>
                     <Overview>
                         <OverviewItem>
                             <span>Total Suply:</span>
-                            <span>{priceInfo?.total_supply}</span>
+                            <span>{tickersData?.total_supply}</span>
                         </OverviewItem>
                         <OverviewItem>
                             <span>Max Supply:</span>
-                            <span>{priceInfo?.max_supply}</span>
+                            <span>{tickersData?.max_supply}</span>
                         </OverviewItem>
                     </Overview>
 
