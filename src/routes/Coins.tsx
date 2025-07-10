@@ -1,25 +1,25 @@
 import styled from "styled-components"; //styled는 아래처럼 '스타일 컴포넌트'를 만들 때 쓰임
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; //Don't forget to import Link from router dom!
 import { useEffect, useState } from "react";
 
-const Container = styled.div`
+export const Container = styled.div`
     padding: 0px 20px;
-    max-width: 480px; // container 필수 작업! max-width와 margin auto 설정으로 보기 좋게
+    max-width: 480px; // container 필수 작업! max-width와 margin auto setting to look nice and ordered
     margin: 0 auto;
 `;
 
-const Header = styled.header`
+export const Header = styled.header`
     display: flex;
     height: 10vh;
     align-items: center;
     justify-content: center;
 `;
-const CoinsList = styled.ul`
+export const CoinsList = styled.ul`
     /* display: grid;
     align-items: center;
     justify-content: start; */
 `;
-const Coin = styled.li`
+export const Coin = styled.li`
     background-color: white;
     color: ${(props) => props.theme.bgColor};
     /* padding: 20px; */
@@ -27,8 +27,10 @@ const Coin = styled.li`
     margin-bottom: 10px;
     a {
         transition: color 0.2s ease-in; // transition(애니메이션) 기능으로 태그에 변화가 생길 때 부드럽게 변함. 0.2s 라고 second를 써줘야함. 0.2초동안 부드럽게 변화.
-        display: block; // 카드 전체를 링크로 만듬. 이제 글씨 뿐만 아니라 카드의 어느곳을 눌러도 스타일 적용됨
         padding: 20px; // 패딩을 li에 적용하든 a에 적용하든 상관없지만 a에 적용하면 a 태그 자체에 padding을 줌으로써 태그에 마우스를 올렸을때 인식이 되는 공간이 넓어짐.
+        display: flex; // make it flex to look everything in the contents put together and nicly ordered
+        gap: 0.825rem;
+        align-items: center; // to make everything in the contents put together and nicly ordered
     }
     &:hover {
         a {
@@ -39,7 +41,7 @@ const Coin = styled.li`
     // App.tsx의 a 태그 부분에 가서 color:inherit으로 바꿔줘야 함
 `;
 
-const Title = styled.h1`
+export const Title = styled.h1`
     //h1 class={Title} 이렇게 한거랑 똑같음
     color: ${(props) =>
         props.theme
@@ -47,9 +49,15 @@ const Title = styled.h1`
     font-size: 3rem;
 `;
 
-const Loader = styled.span`
+export const Loader = styled.span`
     // loading text를 가운데에 띄우는 스타일 적용
     text-align: center;
+`;
+
+export const Img = styled.img`
+    //since original Images are so big & not really ordered. we need to resize them
+    height: 35px;
+    width: 35px;
 `;
 
 interface CoinInterface {
@@ -92,7 +100,18 @@ function Coins() {
                 <CoinsList>
                     {coins.map((coin) => (
                         <Coin key={coin.id}>
-                            <Link to={`/${coin.id}`}>{coin.name} &rarr;</Link>
+                            <Link
+                                to={{
+                                    pathname: `/${coin.id}`, //pathname, state are properties of Link object. You can put object here like this
+                                    state: { name: coin.name }, //path로 쓸 때랑 js 값으로 쓸 때랑 입력 형식이 다름! \${} vs {}
+                                }}
+                            >
+                                <Img
+                                    src={`https://cryptoicon-api.pages.dev/api/icon/${coin.symbol.toLowerCase()}`} // symbol has to converted to lowercase
+                                    // in this case, we use 'img' tag! this api shows 'each coins' logo'
+                                />
+                                {coin.name} &rarr;
+                            </Link>
                         </Coin> //&rarr; 는 화살표 이모지.
                         // CoinList>Coin 의 형태. `/${coin.id}`(백틱으로 감싼) 형태로 to에 값을 넣는다(동적 라우팅). {coin.name} 부분이 링크처럼 작동함
                         // Coin이 동적 url 받을 수 있도록 라우터 설정이 전제되어서 이 방식이 가능한 것임
