@@ -1,8 +1,9 @@
 import styled from "styled-components"; //styled는 아래처럼 '스타일 컴포넌트'를 만들 때 쓰임
-import { Link } from "react-router-dom"; //Don't forget to import Link from router dom!
+import { Link, useHistory } from "react-router-dom"; //Don't forget to import Link from router dom!
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { fetchCoins } from "../api";
+import { Helmet } from "react-helmet-async"; //Helmet lets you change the title of the tap
 
 export const Container = styled.div`
     padding: 0px 20px;
@@ -20,6 +21,14 @@ export const CoinsList = styled.ul`
     /* display: grid;
     align-items: center;
     justify-content: start; */
+`;
+
+export const Button = styled.button`
+    padding: 0.275rem 0.725rem;
+    border-radius: 2rem;
+    &:hover {
+        color: ${(props) => props.theme.accentColor};
+    }
 `;
 export const Coin = styled.li`
     background-color: white;
@@ -74,29 +83,24 @@ interface ICoin {
 }
 function Coins() {
     const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
-    //useQuery needs 2 things. unique ID, fetcher func. and it returns us isLoading(boolean) and the data from JSON.
-    // const [coins, setCoins] = useState<ICoin[]>([]); //객체들을 담은 배열일 때는 []를 뒤에 써주어야함. 초깃값으로 [] 할당하여 배열임을 알려줌
-    // // coins에 아무값이 없어도 초깃값으로 빈 array가 렌더링되므로 에러가 나지 않는다.
-    // const [loading, setLoading] = useState(true);
-    // useEffect(() => {
-    //     //useEffect to occur side effect (this time it happend only once when it's mounted because of dependencies array '[]')
-    //     (async () => {
-    //         // async is a "keyword" saying IT IS asynchronous function ! (saying this: () => {} is asynchronous)
-    //         //'asynchronous func' always returns PROMISE.
-    //         const response = await fetch(
-    //             // await IS a "KEYWORD" and it WAITS until it gets the values(&can put the value in variables)
-    //             "https://api.coinpaprika.com/v1/coins"
-    //         );
-    //         const json = await response.json();
-    //         // console.log(json);
-    //         setCoins(json.slice(0, 100)); //Since the value has a large data, we decided to use only 100 datas
-    //         setLoading(false); //set loading state as false when we get promise(data) successfully
-    //     })(); //는 (함수)() 바로 실행 코드. 정의만 하는게 아닌 실행도 즉시 같이 됨.
-    // }, []);
+    const history = useHistory();
+
+    const goHome = () => {
+        history.push("/"); //go to the main page
+    };
+    const goBack = () => {
+        history.goBack(); //go back to previous page
+    };
+
     return (
         <Container>
+            <Helmet>
+                <title>🌎 Coin trading</title>
+            </Helmet>
             <Header>
-                <Title>코인</Title>
+                <Title>Coin trading</Title>
+                <Button onClick={goBack}>Back</Button>
+                <Button onClick={goHome}>Home</Button>
             </Header>
             {isLoading ? ( // {loading? a : b}
                 <Loader>Loading...</Loader>
@@ -105,7 +109,7 @@ function Coins() {
                     {data?.slice(0, 100).map(
                         //data.map -> error. it's because data might be undefined.. so we fix to data?.map
                         (coin) => (
-                            <Coin key={coin.id}>
+                            <Coin>
                                 <Link
                                     to={{
                                         pathname: `/${coin.id}`, //pathname, state are properties of Link object. You can put object here like this

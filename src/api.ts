@@ -1,6 +1,5 @@
-const Base_URL = `https://api.coinpaprika.com/v1`
+const Base_URL = `https://api.coinpaprika.com/v1`;
 // `` 사용
-
 export function fetchCoins() {
  // yes, we could make it as a normal async func. but here to make it shorter let's use promise
 //fetch function. it should return promise of JSON data
@@ -12,4 +11,7 @@ export function fetchCoinInfo(coinId:string){ // coinId:string 이렇게 해줘�
 }
 export function fetchCoinTickers(coinId:string){ // coinId:string 이렇게 해줘야 인식함
     return fetch(`${Base_URL}/tickers/${coinId}`).then((response) => response.json())
+}
+export function fetchCoinHistory(coinId:string){ 
+    return fetch(`https://ohlcv-api.nomadcoders.workers.dev/?coinId=${coinId}`).then((response) => response.json())
 }

@@ -5,6 +5,7 @@ import {
     useLocation,
     useParams,
     useRouteMatch,
+    useHistory,
 } from "react-router-dom";
 import { Container, Header, Title, Loader } from "./Coins";
 import { useEffect, useState } from "react";
@@ -14,6 +15,8 @@ import Chart from "./Chart";
 import { useQuery } from "react-query";
 import { fetchCoinInfo } from "../api";
 import { fetchCoinTickers } from "../api";
+import { Helmet } from "react-helmet-async";
+import Button from "./Coins";
 
 const Taps = styled.div`
     display: grid;
@@ -96,62 +99,65 @@ interface PriceData {
     beta_value: number;
     first_data_at: Date;
     last_updated: Date;
-    quotes: {
-        price: number;
-        volume_24h: number;
-        volume_24h_change_24h: number;
-        market_cap: number;
-        market_cap_change_24h: number;
-        percent_change_15m: number;
-        percent_change_30m: number;
-        percent_change_1h: number;
-        percent_change_6h: number;
-        percent_change_12h: number;
-        percent_change_24h: number;
-        percent_change_7d: number;
-        percent_change_30d: number;
-        percent_change_1y: number;
-        ath_price: number;
-        ath_date: Date;
-        percent_from_price_ath: number;
-    };
+    quotes: Quotes;
 }
+export interface Quotes {
+    USD: Usd;
+}
+export interface Usd {
+    price: number;
+    volume_24h: number;
+    volume_24h_change_24h: number;
+    market_cap: number;
+    market_cap_change_24h: number;
+    percent_change_15m: number;
+    percent_change_30m: number;
+    percent_change_1h: number;
+    percent_change_6h: number;
+    percent_change_12h: number;
+    percent_change_24h: number;
+    percent_change_7d: number;
+    percent_change_30d: number;
+    percent_change_1y: number;
+    ath_price: number;
+    ath_date: Date;
+    percent_from_price_ath: number;
+}
+// interface ChildProps {
+//     onGoBack: () => void;
+//     onGoHome: () => void;
+// }
 
 function Coin() {
     const { coinId } = useParams<RouteParam>(); //useParam variable that is typed
     const { state } = useLocation<RouteState>();
-    // const [loading, setLoading] = useState(true);
-    // const [info, setInfo] = useState<InfoData>(); //이제 fetch로 받아온 infoData, priceData를 사용하기 위해 state로 정의해준다
-    // const [priceInfo, setPriceInfo] = useState<PriceData>(); //interface를 정의해주었으므로 {}는 필요없다
     const priceMatch = useRouteMatch(`/${coinId}/price`); //true면 priceMatch는 object가 될거고 아니면 null 반환
     const chartMatch = useRouteMatch(`/${coinId}/chart`); //useRouteMatch checks whether you are in the url
     // react-router v6부터는 useRouteMatch가 사용되지 않고 useMatch로 대체된다.
     const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
-        ["info", coinId],
-        () => fetchCoinInfo(coinId)
-    ); // can't not have the same name so we're going to change their name by like this=> isLoading: infoLoading
+        ["info", coinId], // make query key unique like this: ["info", coinId]
+        () => fetchCoinInfo(coinId), // this is fetcher func(not the return value, should be func like this). fetchCoinInfo gets prameter.
+        {
+            // refetchInterval: 500, //every 5 secs, it'll refresh(refetch) coin prices in real-time on the background
+            // but for the coinpaprika it will hit the maximum api usage so we're not using it
+        }
+    );
     const { isLoading: tickersLoading, data: tickersData } =
         useQuery<PriceData>(["ticker", coinId], () => fetchCoinTickers(coinId));
-
-    // useEffect(() => {
-    //     (async () => {
-    //         const infoData = await (
-    //             await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-    //         ).json(); // 이 방식은 await response.json()과 같다
-    //         console.log(infoData);
-    //         // infoData는 object type
-    //         const priceData = await (
-    //             await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-    //         ).json(); // ticker api, price info
-    //         console.log(priceData);
-    //         setInfo(infoData);
-    //         setPriceInfo(priceData);
-    //         setLoading(false);
-    //     })();
-    // }, [coinId]); //If coinId value is changed it runs again
     const loading = infoLoading || tickersLoading;
+    // console.log(tickersData?.quotes.USD.price);
+
     return (
         <Container>
+            <Helmet>
+                <title>
+                    {state?.name
+                        ? state.name
+                        : loading
+                        ? "Loading..."
+                        : infoData?.name}
+                </title>
+            </Helmet>
             <Header>
                 <Title>
                     {state?.name
@@ -178,8 +184,10 @@ function Coin() {
                             <span>{infoData?.symbol}</span>
                         </OverviewItem>
                         <OverviewItem>
-                            <span>Open Source:</span>
-                            <span>{infoData?.open_source ? "Yes" : "No"}</span>
+                            <span>Price:</span>
+                            <span>
+                                ${tickersData?.quotes.USD.price.toFixed(2)}
+                            </span>
                         </OverviewItem>
                     </Overview>
                     <Description>{infoData?.description}</Description>
@@ -195,23 +203,23 @@ function Coin() {
                     </Overview>
 
                     <Taps>
+                        <Tap isActive={chartMatch !== null}>
+                            <Link to={`/${coinId}/chart`}>Chart</Link>
+                        </Tap>
                         <Tap isActive={priceMatch !== null}>
                             {/* isActive is props that Tap has.. it's same as !(priceMatch == null) */}
                             <Link to={`/${coinId}/price`}>Price</Link>
-                        </Tap>
-                        <Tap isActive={chartMatch !== null}>
-                            <Link to={`/${coinId}/chart`}>Chart</Link>
                         </Tap>
                     </Taps>
 
                     <Switch>
                         {/* 라우트 안에 또 다른 라우터를 렌더링하는 중 */}
+                        <Route path={`/${coinId}/chart`}>
+                            <Chart coinId={coinId} />
+                        </Route>
                         <Route path={`/${coinId}/price`}>
                             {/* coinId에 실제 값이 있는 경우 사용자가 없는 값을 입력하면 에러가 나도록 정적 경로로 설정해야 한다. */}
-                            <Price />
-                        </Route>
-                        <Route path={`/${coinId}/chart`}>
-                            <Chart />
+                            <Price coinId={coinId} />
                         </Route>
                     </Switch>
                 </>
