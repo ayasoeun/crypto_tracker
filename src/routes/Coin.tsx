@@ -16,7 +16,7 @@ import { useQuery } from "react-query";
 import { fetchCoinInfo } from "../api";
 import { fetchCoinTickers } from "../api";
 import { Helmet } from "react-helmet-async";
-import Button from "./Coins";
+import NavigationBtn from "../navigationBtn";
 
 const Taps = styled.div`
     display: grid;
@@ -158,6 +158,7 @@ function Coin() {
                         : infoData?.name}
                 </title>
             </Helmet>
+
             <Header>
                 <Title>
                     {state?.name
@@ -169,6 +170,7 @@ function Coin() {
                 {/* This will only be true when users click through the homepage  */}
                 {/* : is 'or'. This will if you can't get the state from url param then you get data from api */}
                 {/* loading ? "Loading..." : info?.name -> This block will be excuted when user is not coming from hompage */}
+                <NavigationBtn />
             </Header>
             {loading ? ( // {loading? a : b}
                 <Loader>Loading...</Loader>

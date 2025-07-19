@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { fetchCoins } from "../api";
 import { Helmet } from "react-helmet-async"; //Helmet lets you change the title of the tap
+import NavigationBtn from "../navigationBtn";
 
 export const Container = styled.div`
     padding: 0px 20px;
@@ -83,14 +84,6 @@ interface ICoin {
 }
 function Coins() {
     const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
-    const history = useHistory();
-
-    const goHome = () => {
-        history.push("/"); //go to the main page
-    };
-    const goBack = () => {
-        history.goBack(); //go back to previous page
-    };
 
     return (
         <Container>
@@ -99,8 +92,8 @@ function Coins() {
             </Helmet>
             <Header>
                 <Title>Coin trading</Title>
-                <Button onClick={goBack}>Back</Button>
-                <Button onClick={goHome}>Home</Button>
+                {/* Button comes here */}
+                <NavigationBtn />
             </Header>
             {isLoading ? ( // {loading? a : b}
                 <Loader>Loading...</Loader>
