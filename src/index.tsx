@@ -16,11 +16,9 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
     <React.StrictMode>
         <QueryClientProvider client={queryClient}>
-            <ThemeProvider theme={theme}>
-                <HelmetProvider>
-                    <App />
-                </HelmetProvider>
-            </ThemeProvider>
+            <HelmetProvider>
+                <App />
+            </HelmetProvider>
         </QueryClientProvider>
     </React.StrictMode>
 );

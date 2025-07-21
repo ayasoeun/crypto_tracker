@@ -128,7 +128,10 @@ export interface Usd {
 //     onGoHome: () => void;
 // }
 
-function Coin() {
+interface ICoinProps {
+    isDark: boolean;
+}
+function Coin({ isDark }: ICoinProps) {
     const { coinId } = useParams<RouteParam>(); //useParam variable that is typed
     const { state } = useLocation<RouteState>();
     const priceMatch = useRouteMatch(`/${coinId}/price`); //true면 priceMatch는 object가 될거고 아니면 null 반환
@@ -217,7 +220,7 @@ function Coin() {
                     <Switch>
                         {/* 라우트 안에 또 다른 라우터를 렌더링하는 중 */}
                         <Route path={`/${coinId}/chart`}>
-                            <Chart coinId={coinId} />
+                            <Chart coinId={coinId} isDark={isDark} />
                         </Route>
                         <Route path={`/${coinId}/price`}>
                             {/* coinId에 실제 값이 있는 경우 사용자가 없는 값을 입력하면 에러가 나도록 정적 경로로 설정해야 한다. */}

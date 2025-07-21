@@ -33,7 +33,7 @@ export const Button = styled.button`
 `;
 export const Coin = styled.li`
     background-color: white;
-    color: ${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.textColor};
     /* padding: 20px; */
     border-radius: 0.985rem;
     margin-bottom: 10px;
@@ -82,7 +82,10 @@ interface ICoin {
     is_active: boolean;
     type: string;
 }
-function Coins() {
+interface ItoggleDark {
+    toggleDark: () => void;
+}
+function Coins({ toggleDark }: ItoggleDark) {
     const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
 
     return (
@@ -94,6 +97,8 @@ function Coins() {
                 <Title>Coin trading</Title>
                 {/* Button comes here */}
                 <NavigationBtn />
+                <button onClick={toggleDark}>Toggle mode</button>
+                {/* button should be in header */}
             </Header>
             {isLoading ? ( // {loading? a : b}
                 <Loader>Loading...</Loader>

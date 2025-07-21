@@ -5,6 +5,7 @@ import { theme } from "../theme";
 
 interface ChartProps {
     coinId: string;
+    isDark: boolean;
 }
 export interface IHistory {
     time_open: number;
@@ -17,7 +18,7 @@ export interface IHistory {
     market_cap: number;
 }
 
-function Chart({ coinId }: ChartProps) {
+function Chart({ coinId, isDark }: ChartProps) {
     //구조분해
     const { isLoading, data } = useQuery<IHistory[]>(["history", coinId], () =>
         fetchCoinHistory(coinId)
@@ -68,7 +69,7 @@ function Chart({ coinId }: ChartProps) {
                                 },
                             },
                             theme: {
-                                mode: "dark",
+                                mode: isDark ? "dark" : "light",
                                 palette: theme.bgColor,
                             },
                             tooltip: {

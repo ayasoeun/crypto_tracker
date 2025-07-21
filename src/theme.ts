@@ -6,3 +6,13 @@ export const theme: DefaultTheme = {
     accentColor: "#8c7ae6",
 };
 // // js object이다. const theme = {} 이 기본 형식. 여기서 DefaultTheme 이라고 타입을 설명해준 것임
+export const darkTheme: DefaultTheme = {
+    bgColor: "#2f3640",
+    textColor: "#2f3640",
+    accentColor: "#8c7ae6",
+};
+export const lightTheme: DefaultTheme = {
+    bgColor: "#f5f6fa",
+    textColor: "#2f3640",
+    accentColor: "#8c7ae6",
+};
