@@ -5,6 +5,7 @@ import { useQuery } from "react-query";
 import { fetchCoins } from "../api";
 import { Helmet } from "react-helmet-async"; //Helmet lets you change the title of the tap
 import NavigationBtn from "../navigationBtn";
+import { useRecoilValue } from "recoil";
 
 export const Container = styled.div`
     padding: 0px 20px;
@@ -82,10 +83,8 @@ interface ICoin {
     is_active: boolean;
     type: string;
 }
-interface ItoggleDark {
-    toggleDark: () => void;
-}
-function Coins({ toggleDark }: ItoggleDark) {
+interface ItoggleDark {}
+function Coins() {
     const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
 
     return (
@@ -97,8 +96,7 @@ function Coins({ toggleDark }: ItoggleDark) {
                 <Title>Coin trading</Title>
                 {/* Button comes here */}
                 <NavigationBtn />
-                <button onClick={toggleDark}>Toggle mode</button>
-                {/* button should be in header */}
+                <button>toggle mode</button>
             </Header>
             {isLoading ? ( // {loading? a : b}
                 <Loader>Loading...</Loader>

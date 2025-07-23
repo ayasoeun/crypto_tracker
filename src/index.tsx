@@ -6,6 +6,7 @@ import { theme } from "./theme"; //theme 컴포넌트를 임포트. 이제 App�
 import { QueryClient, QueryClientProvider } from "react-query"; //query client를 사용하기 위해 QueryClientProvider import.
 //App을 QueryClientProvider로 감싸주자
 import { HelmetProvider } from "react-helmet-async";
+import { RecoilRoot } from "recoil";
 
 const queryClient = new QueryClient();
 
@@ -15,10 +16,12 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
     <React.StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <HelmetProvider>
-                <App />
-            </HelmetProvider>
-        </QueryClientProvider>
+        <RecoilRoot>
+            <QueryClientProvider client={queryClient}>
+                <HelmetProvider>
+                    <App />
+                </HelmetProvider>
+            </QueryClientProvider>
+        </RecoilRoot>
     </React.StrictMode>
 );

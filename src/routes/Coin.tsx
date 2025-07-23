@@ -17,6 +17,8 @@ import { fetchCoinInfo } from "../api";
 import { fetchCoinTickers } from "../api";
 import { Helmet } from "react-helmet-async";
 import NavigationBtn from "../navigationBtn";
+import { useRecoilValue } from "recoil";
+import { isDarkAtom } from "../atoms";
 
 const Taps = styled.div`
     display: grid;
@@ -123,15 +125,9 @@ export interface Usd {
     ath_date: Date;
     percent_from_price_ath: number;
 }
-// interface ChildProps {
-//     onGoBack: () => void;
-//     onGoHome: () => void;
-// }
 
-interface ICoinProps {
-    isDark: boolean;
-}
-function Coin({ isDark }: ICoinProps) {
+interface ICoinProps {}
+function Coin() {
     const { coinId } = useParams<RouteParam>(); //useParam variable that is typed
     const { state } = useLocation<RouteState>();
     const priceMatch = useRouteMatch(`/${coinId}/price`); //true면 priceMatch는 object가 될거고 아니면 null 반환
@@ -220,7 +216,7 @@ function Coin({ isDark }: ICoinProps) {
                     <Switch>
                         {/* 라우트 안에 또 다른 라우터를 렌더링하는 중 */}
                         <Route path={`/${coinId}/chart`}>
-                            <Chart coinId={coinId} isDark={isDark} />
+                            <Chart coinId={coinId} />
                         </Route>
                         <Route path={`/${coinId}/price`}>
                             {/* coinId에 실제 값이 있는 경우 사용자가 없는 값을 입력하면 에러가 나도록 정적 경로로 설정해야 한다. */}
