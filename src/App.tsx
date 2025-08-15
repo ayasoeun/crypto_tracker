@@ -1,11 +1,10 @@
-import Router from "./Router";
 import styled, { createGlobalStyle } from "styled-components"; //전역 스타일 적용을 위한 createGlobalStyle import
 import { ReactQueryDevtools } from "react-query/devtools"; //to see react cache
 import { ThemeProvider } from "styled-components";
 import { darkTheme, lightTheme } from "./theme";
 import { useState } from "react";
 import { useRecoilValue } from "recoil";
-import { isDarkAtom } from "./atoms";
+import ToDoList from "./toDoList";
 
 const GlobalStyle = createGlobalStyle` //이렇게 전역 스타일을 적용해줄 수 있다. 사용법은 일반 styled components와 동일하다. 이곳에 css 리셋 코드를 적는다.
     @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
@@ -58,15 +57,11 @@ table {
   border-spacing: 0;
 }
 body {
-    font-family: "Source Sans 3", sans-serif; // "Source Sans 3" 처럼 임포트한 폰트만 따옴표로 감싸줘야 됨 "" 안에 sans-serif 같이 쓰지 말것.
-    background-color: ${(props) => props.theme.bgColor};
-    color: ${(props) => props.theme.textColor};
+    font-family: "Source Sans 3", sans-serif; // "Source Sans 3" 처럼 임포트한 폰트만 따옴표로 감싸줘야 됨 "" 안에 sans-serif 같이 쓰지 말것
 }
 a {
     text-decoration: none;
     color: inherit;
-     // color:inherit으로 바꿔줘야 Link를 설정한 텍스트가 설정한 스타일을 따름
-     // <Link> 컴포넌트는 실제로 렌더링되면 <a> 태그처럼 동작하고, <a> 태그처럼 스타일이 적용된다. 
 }
 *{
     box-sizing: border-box;
@@ -74,15 +69,11 @@ a {
 `;
 
 function App() {
-    const isDark = useRecoilValue(isDarkAtom);
     return (
         <>
-            <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-                <GlobalStyle />
-                <Router />
-                <ReactQueryDevtools initialIsOpen={true} />
-            </ThemeProvider>
-        </> //기존에 리액트에서 <div>로 컴포넌트들을 묶어주었는데, 이러면 쓸데없는 div가 늘어나기 때문에 fragment 태그를 사용한다.
+            <GlobalStyle />
+            <ToDoList />
+        </>
     );
 }
 
