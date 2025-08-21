@@ -36,22 +36,41 @@ import { useForm, useFormState } from "react-hook-form";
 //         </div>
 //     );
 // }
+type FormValues = {
+    email: string;
+    firstname: string;
+    lastname: string;
+    password: string;
+    password1: string;
+    username: string;
+};
 
 function ToDoList() {
-    const { register, handleSubmit, formState } = useForm();
-    const onValid = (data: any) => {
-        console.log(data);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setError,
+    } = useForm<FormValues>();
+    const onValid = (data: FormValues) => {
+        if (data.password !== data.password1) {
+            setError("password", { message: "Password are not the same" });
+        }
     };
-    console.log(formState.errors);
+    console.log(errors);
     return (
         <div>
             <form
-                style={{ display: "grid", gap: 10, maxWidth: 200 }}
+                style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    maxWidth: 200,
+                }}
                 onSubmit={handleSubmit(onValid)}
             >
                 <input
                     {...register("email", {
-                        required: true,
+                        required: "Email is required",
                         minLength: 10,
                         pattern: {
                             value: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/g,
@@ -60,21 +79,45 @@ function ToDoList() {
                     })}
                     placeholder="Email"
                 />
+                <span>{errors?.email?.message}</span>
+
                 <input
-                    {...register("firstname", { required: true })}
+                    {...register("firstname", {
+                        required: "First Name is required",
+                        validate: {
+                            val1: (value) =>
+                                value.includes("me")
+                                    ? "can't have 'me' inside"
+                                    : true,
+                            val2: (value) =>
+                                value.includes("qwe")
+                                    ? "'no qwe allowed'"
+                                    : true,
+                        },
+                    })}
                     placeholder="First Name"
                 />
+                <span>{errors?.firstname?.message}</span>
+
                 <input
-                    {...register("lastname", { required: true })}
+                    {...register("lastname", {
+                        required: "Last Name is required",
+                    })}
                     placeholder="Last Name"
                 />
+                <span>{errors?.lastname?.message}</span>
+
                 <input
-                    {...register("username", { required: true })}
+                    {...register("username", {
+                        required: "UserName is required",
+                    })}
                     placeholder="Username"
                 />
+                <span>{errors?.username?.message}</span>
+
                 <input
                     {...register("password", {
-                        required: true,
+                        required: "Password is required",
                         pattern: {
                             value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
                             message: "Only correct password allowed",
@@ -82,6 +125,18 @@ function ToDoList() {
                     })}
                     placeholder="Password"
                 />
+                <input
+                    {...register("password1", {
+                        required: "Password is required",
+                        pattern: {
+                            value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm,
+                            message: "Only correct password allowed",
+                        },
+                    })}
+                    placeholder="Password"
+                />
+                <span>{errors?.password?.message}</span>
+
                 <button>Add</button>
             </form>
         </div>
